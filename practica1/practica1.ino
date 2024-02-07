@@ -47,6 +47,8 @@ void loop() {
   
   char teclaIngresada = teclado.getKey();
   if(teclaIngresada){
+    
+    Serial.print(intentos);
     if(intentos < 3){
       if(estado.equals("ESTADO ARMADO")){
         if(teclaIngresada=='*'){
@@ -68,6 +70,24 @@ void loop() {
               pass_display ="";
               MATRICES.print(pass_display);
               intentos +=1;
+              if(intentos == 1){
+                pinMode(A0,OUTPUT);
+                digitalWrite(A0,HIGH);
+              }
+              if(intentos == 2){
+                pinMode(A0,OUTPUT);
+                digitalWrite(A0,HIGH);
+                pinMode(A1,OUTPUT);
+                digitalWrite(A1,HIGH);
+              }
+              if(intentos == 3){
+                pinMode(A0,OUTPUT);
+                digitalWrite(A0,HIGH);
+                pinMode(A1,OUTPUT);
+                digitalWrite(A1,HIGH);
+                pinMode(A2,OUTPUT);
+                digitalWrite(A2,HIGH);
+              }
             }
 
           }else{
@@ -88,15 +108,24 @@ void loop() {
       } else if(estado.equals("ESTADO DESBLOQUEADO")){
           if(teclaIngresada == '*'){
             Serial.println("ESPERANDO PASSWORD");
+            estado = "ESPERANDO PASSWORD";
           }
+      } else if (estado.equals("ESPERANDO PASSWORD")){
+          
       }
     } else{
       estado = "MAXIMO DE INTENTOS FALLIDOS";
       Serial.println(estado);
       delay(15000);
+      digitalWrite(A0,LOW);
+      digitalWrite(A1,LOW);
+      digitalWrite(A2,LOW);
       estado ="ESTADO ARMADO";
       Serial.println(estado);
       intentos =0;
+    }
+    if (estado.equals("ESPERANDO PASSWORD")){
+      Serial.print("Si entro");
     }
   }
   
