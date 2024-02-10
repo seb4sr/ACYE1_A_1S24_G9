@@ -14,6 +14,7 @@
 String pass_display;
 String pass;
 String new_pass;
+String new_pass_ast;
 //String pass_correcta="AC09C124";
 String pass_correcta="8";
 String estado="ESTADO ARMADO";
@@ -25,6 +26,7 @@ int intentos =0;
 MD_Parola MATRICES = MD_Parola(HARDWARE_TYPE, DATA, CLK, CS, MAX_DEV);
 
 bool inicio = true;
+bool correcta = false;
 
 const byte filas = 4;
 const byte columnas = 4;
@@ -465,8 +467,9 @@ void loop() {
             
           }
       } else if (estado.equals("ESPERANDO PASSWORD")){
-        Serial.println("ESTOY ESPERANDO PASSWORD CADA TECLA");
+        //Serial.println("ESTOY ESPERANDO PASSWORD CADA TECLA");
         if (teclaIngresada=='#'){
+          
           Serial.println("---------------------");
           Serial.println("->EVALUANDO PASSWORD-");
           Serial.println("---------------------");
@@ -500,6 +503,7 @@ void loop() {
                               intentos=0;
                               estado = "ESTADO ARMADO";
                               inicio = true;
+                              correcta = true;
                             }
                           }
                         }
@@ -532,6 +536,7 @@ void loop() {
                               intentos=0;
                               estado = "ESTADO ARMADO";
                               inicio = true; 
+                              correcta = true;
                             }
                           }
                         }
@@ -539,14 +544,15 @@ void loop() {
                     }
                   }
                 }
-              }else{
+              }
+              if (correcta == false){
                   Serial.println("---------------------");
                   Serial.println("--->NUEVA PASSWORD---");
                   Serial.println("------>DENEGADA------");
                   Serial.println("-->PATRON INCORRECTO-");
                   Serial.println("---------------------");
-                  pass_correcta = new_pass;
                   new_pass ="";
+                  new_pass_ast ="";
                   intentos=0;
                   estado = "ESPERANDO PASSWORD";
                   Serial.println("---------------------");
@@ -578,6 +584,7 @@ void loop() {
                               intentos=0;
                               estado = "ESTADO ARMADO";
                               inicio = true; 
+                              correcta = true;
                         }
                       }
                     }
@@ -604,20 +611,22 @@ void loop() {
                               intentos=0;
                               estado = "ESTADO ARMADO";
                               inicio = true; 
+                              correcta = true;
                             }
                           }
                         }
                       }
                     }
-              }else{
+              }
+              if (correcta == false){
                   Serial.println("---------------------");
                   Serial.println("--->NUEVA PASSWORD---");
                   Serial.println("------>DENEGADA------");
                   Serial.println("-->PATRON INCORRECTO-");
                   Serial.println("---------------------");
                   Serial.println("");
-                  pass_correcta = new_pass;
                   new_pass ="";
+                  new_pass_ast ="";
                   intentos=0;
                   estado = "ESPERANDO PASSWORD";
                   Serial.println("---------------------");
@@ -625,21 +634,16 @@ void loop() {
                   Serial.println("---------------------");
                   Serial.println(" ");
                 }
-            } 
-          }
-            else{
+              }
+            } else{
                   Serial.println("---------------------");
                   Serial.println("--->NUEVA PASSWORD---");
                   Serial.println("------>DENEGADA------");
                   Serial.println("--->INCORRECT SIZE---");
                   Serial.println("---------------------");
                   Serial.println("");
-                  pass_correcta = new_pass;
                   new_pass ="";
-                  intentos=0;
-                  estado = "ESPERANDO PASSWORD";
-                  pass_correcta = new_pass;
-                  new_pass ="";
+                  new_pass_ast ="";
                   intentos=0;
                   estado = "ESPERANDO PASSWORD";
                   Serial.println("---------------------");
@@ -652,9 +656,10 @@ void loop() {
         } else{
           
           new_pass+=teclaIngresada;
+          new_pass_ast += "*";
           Serial.print("Tecla: ");
-          Serial.println(teclaIngresada);
-          Serial.println("NEW: " + new_pass);
+          Serial.println(new_pass_ast);
+          //Serial.println("NEW: " + new_pass);
         }
       } else if (estado.equals("ESPERANDO OPERACION")){
         if (teclaIngresada == '*'){
@@ -667,6 +672,7 @@ void loop() {
             Serial.println(resultadoFinal);
             estado = "ESPERANDO OPERACION";
             operacion_str="";
+            //teclaIngresada="*";
             
           }
           if (teclaIngresada == 'A'){
@@ -693,10 +699,16 @@ void loop() {
             MATRICES.print(operacion_display);
             Serial.println("--> OPERACION: " + operacion_str);
           } else{
-            operacion_str += teclaIngresada;
-            operacion_display+= teclaIngresada;
-            MATRICES.print(operacion_display);
-            Serial.println("--> OPERACION: " + operacion_str);
+            if (teclaIngresada == '#'){
+
+            }
+            else{
+              operacion_str += teclaIngresada;
+              operacion_display+= teclaIngresada;
+              MATRICES.print(operacion_display);
+              Serial.println("--> OPERACION: " + operacion_str);
+            }
+            
           }
         }
           
