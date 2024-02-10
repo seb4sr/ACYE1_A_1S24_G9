@@ -15,7 +15,7 @@ String pass_display;
 String pass;
 String new_pass;
 String new_pass_ast;
-String pass_correcta="AC09C124";
+String pass_correcta = "AC09C124";
 //String pass_correcta = "8";
 String estado = "ESTADO ARMADO";
 String operacion_str = "";
@@ -24,6 +24,7 @@ String error = "false";
 int intentos = 0;
 String mensaje = "";
 int estadofinal = 1;
+bool merror = false;
 
 unsigned long tiempoUltimaOperacion = 0;
 const unsigned long intervaloOperacion = 30000;
@@ -238,6 +239,11 @@ int calculadora(String expresion) {
           //Serial.println("NB " + numero2);
           digitoInt1 = numero1_fix.toInt();
           digitoInt2 = numero2.toInt();
+          Serial.print(digitoInt2);
+          if (digitoInt2 == 0) {
+            Serial.println("ERROR: DIVISION POR 0");
+            merror = true;
+          }
           aux_result = digitoInt1 / digitoInt2;
           for (int r = 0; r < numero1.length(); r++) {
             if (operacion_escribir != 0) {
@@ -253,6 +259,8 @@ int calculadora(String expresion) {
           //Serial.println("TEMP RESULT" + String(aux_result));
           opero = true;
           //j=operacion_simplificada.length();
+
+
         } else {
           operacion_escribir += caracter;
         }
@@ -687,19 +695,31 @@ void loop() {
               if (switch2 == 1) {
                 if (switch1 != estadofinal) {
                   if (switch1 == 1) {
-                    mensaje = "Resultado: "+String(resultadoFinal);
+                    if (!merror) {
+                      mensaje = "Resultado: " + String(resultadoFinal);
+                    } else {
+                      mensaje = "Error div 0";
+                    }
                     MATRICES.write(mensaje.c_str());
                     MATRICES.setTextEffect(PA_SCROLL_RIGHT, PA_SCROLL_RIGHT);
                     estadofinal = 1;
                   } else {
-                    mensaje = "Resultado: "+String(resultadoFinal);
+                    if (!merror) {
+                      mensaje = "Resultado: " + String(resultadoFinal);
+                    } else {
+                      mensaje = "Error div 0";
+                    }
                     MATRICES.write(mensaje.c_str());
                     MATRICES.setTextEffect(PA_SCROLL_LEFT, PA_SCROLL_LEFT);
                     estadofinal = 0;
                   }
                 }
               } else {
-                mensaje = "Resultado: "+String(resultadoFinal);
+                if (!merror) {
+                  mensaje = "Resultado: " + String(resultadoFinal);
+                } else {
+                  mensaje = "Error div 0";
+                }
                 MATRICES.write(mensaje.c_str());
                 int indiceEfecto = random(0, sizeof(animacion2));
                 MATRICES.setTextEffect(animacion2[indiceEfecto], animacion2[indiceEfecto]);
@@ -708,10 +728,13 @@ void loop() {
                 MATRICES.displayClear();
                 MATRICES.displayReset();
               }
-                conteo +=1;
-                if(conteo == 5000){
-                  animacion = false;
-                }
+              conteo += 1;
+              Serial.print(" ");
+              if (conteo == 10000) {
+                animacion = false;
+                merror = false;
+                Serial.println(" ");
+              }
             }
 
             estado = "ESPERANDO OPERACION";
