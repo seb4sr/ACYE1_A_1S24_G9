@@ -14,10 +14,16 @@
 String pass_display;
 String pass;
 String new_pass;
-String pass_correcta="AC09C124";
+//String pass_correcta="AC09C124";
+String pass_correcta="8";
 String estado="ESTADO ARMADO";
+String operacion_str = "";
+String operacion_display = "";
+String error = "false";
 int intentos =0;
+
 MD_Parola MATRICES = MD_Parola(HARDWARE_TYPE, DATA, CLK, CS, MAX_DEV);
+
 bool inicio = true;
 
 const byte filas = 4;
@@ -35,7 +41,313 @@ byte columnasPines[columnas] = {9,8,7,6};
 
 Keypad teclado = Keypad(makeKeymap(teclas), filasPines, columnasPines, filas, columnas);
 
+bool esDigitoString(const String& str) {
+    // Iterar a través de cada caracter del string
+    for (int i = 0; i < str.length(); i++) {
+        // Verificar si el caracter actual no es un dígito
+        if (!isdigit(str.charAt(i))) {
+            // Si encontramos un caracter que no es un dígito, retornamos falso
+            return false;
+        }
+    }
+    // Si todos los caracteres son dígitos, retornamos verdadero
+    return true;
+}
 
+int calculadora(String expresion){
+
+  int resultado = 0;
+  int aux_result = 0;
+
+  String numero1="";
+  String numero2="";
+
+  String operacion_simplificada=expresion;
+  String operacion_escribir= "";
+
+  bool opero = false;
+
+  int contador_operaciones = 0;
+  int contador_operaciones2 = 0;
+//-------------------------
+  for (int i = 0; i < expresion.length(); i++) {
+
+    char caracter = expresion.charAt(i);
+    //if (caracter == '*' || caracter == '/'){
+    if (caracter == '*'){
+      contador_operaciones +=1;
+    }
+  }
+  //Serial.println("CAN OP: " + String(contador_operaciones));
+  
+  for (int i=0; i < contador_operaciones;){
+    int digitoInt1="0";
+    int digitoInt2="0";
+    numero1="";
+    numero2="";
+    for (int j = 0; j < operacion_simplificada.length(); j++) {
+
+      char caracter = operacion_simplificada.charAt(j);
+
+      if (caracter == '*'){
+        if (opero == false){
+          for (int k=j-1; k<operacion_simplificada.length();k--){
+
+              char caracter_j = operacion_simplificada.charAt(k);
+
+              if (k!=-1){
+
+                if (caracter_j == '+' || caracter_j == '/' || caracter_j == '-' || caracter_j == '*'){
+
+                  //Serial.println("Se guardo un digito");
+                  k=operacion_simplificada.length()+1;
+
+                } else {
+                  numero1+=caracter_j;
+                }
+                
+              }
+            }
+          for (int p = j+1; p<operacion_simplificada.length();p++){
+
+                char caracter_j = operacion_simplificada.charAt(p);
+
+                if (caracter_j == '+' || caracter_j == '/' || caracter_j == '-' || caracter_j == '*'){
+
+                  //Serial.println("Se guardo un digito");
+                  p=operacion_simplificada.length();
+
+                } else {
+
+                  numero2+=caracter_j;
+                  j++;
+
+                }
+              }
+
+          
+          String numero1_fix = "";
+          for (int b = numero1.length() - 1; b >= 0; b--) {
+              numero1_fix += numero1.charAt(b);
+          }
+          //Serial.println("NA fix "+numero1_fix);
+          //Serial.println("NB " + numero2);
+          digitoInt1 = numero1_fix.toInt();
+          digitoInt2 = numero2.toInt();
+          aux_result = digitoInt1 * digitoInt2;
+          for(int r = 0; r < numero1.length();r++){
+            if (operacion_escribir != 0){
+
+              int longitud = operacion_escribir.length();
+              operacion_escribir = operacion_escribir.substring(0, longitud - 1);
+            }
+
+          }
+          
+          operacion_escribir+=String(aux_result);
+          i++;
+          //Serial.println("i" + String(i));
+          //Serial.println("TEMP RESULT" + String(aux_result));
+          opero = true;
+          //j=operacion_simplificada.length();
+        } else{
+          operacion_escribir+=caracter;
+        }
+      } else {
+        operacion_escribir+=caracter;
+      } 
+    } 
+    opero = false;
+    //Serial.println("OPS ESCRI " + operacion_escribir);
+    operacion_simplificada = operacion_escribir;
+    operacion_escribir = "";
+    //Serial.println("OPSIMPLI " + operacion_simplificada);
+  }
+
+
+  for (int i = 0; i < expresion.length(); i++) {
+
+    char caracter = expresion.charAt(i);
+    //if (caracter == '*' || caracter == '/'){
+    if (caracter == '/'){
+      contador_operaciones2 +=1;
+    }
+  }
+  //Serial.println("CAN OP2: " + String(contador_operaciones2));
+  
+  for (int i=0; i < contador_operaciones2;){
+    int digitoInt1="0";
+    int digitoInt2="0";
+    numero1="";
+    numero2="";
+    for (int j = 0; j < operacion_simplificada.length(); j++) {
+
+      char caracter = operacion_simplificada.charAt(j);
+
+      if (caracter == '/'){
+        if (opero == false){
+          for (int k=j-1; k<operacion_simplificada.length();k--){
+
+              char caracter_j = operacion_simplificada.charAt(k);
+
+              if (k!=-1){
+
+                if (caracter_j == '+' || caracter_j == '/' || caracter_j == '-' || caracter_j == '*'){
+
+                  //Serial.println("Se guardo un digito");
+                  k=operacion_simplificada.length()+1;
+
+                } else {
+                  numero1+=caracter_j;
+                }
+                
+              }
+            }
+          for (int p = j+1; p<operacion_simplificada.length();p++){
+
+                char caracter_j = operacion_simplificada.charAt(p);
+
+                if (caracter_j == '+' || caracter_j == '/' || caracter_j == '-' || caracter_j == '*'){
+
+                  //Serial.println("Se guardo un digito");
+                  p=operacion_simplificada.length();
+
+                } else {
+
+                  numero2+=caracter_j;
+                  j++;
+
+                }
+              }
+
+          
+          String numero1_fix = "";
+          for (int b = numero1.length() - 1; b >= 0; b--) {
+              numero1_fix += numero1.charAt(b);
+          }
+          //Serial.println("NA fix "+numero1_fix);
+          //Serial.println("NB " + numero2);
+          digitoInt1 = numero1_fix.toInt();
+          digitoInt2 = numero2.toInt();
+          aux_result = digitoInt1 / digitoInt2;
+          for(int r = 0; r < numero1.length();r++){
+            if (operacion_escribir != 0){
+
+              int longitud = operacion_escribir.length();
+              operacion_escribir = operacion_escribir.substring(0, longitud - 1);
+            }
+
+          }
+          
+          operacion_escribir+=String(aux_result);
+          i++;
+          //Serial.println("i" + String(i));
+          //Serial.println("TEMP RESULT" + String(aux_result));
+          opero = true;
+          //j=operacion_simplificada.length();
+        } else{
+          operacion_escribir+=caracter;
+        }
+      } else {
+        operacion_escribir+=caracter;
+      } 
+    } 
+    opero = false;
+    //Serial.println("OPS ESCRI " + operacion_escribir);
+    operacion_simplificada = operacion_escribir;
+    operacion_escribir = "";
+    //Serial.println("OPSIMPLI " + operacion_simplificada);
+  }
+//SUMAS RESTAS RESULTADO FINAL
+  for (int i = 0; i< operacion_simplificada.length();i++){
+
+    char caracter = operacion_simplificada.charAt(i);
+    
+    if(caracter == '-'){
+      //Serial.println("ENTRO 1");
+      String numero_restar="";
+      int numero_restar_int = 0;
+      for (int p = i+1; p<operacion_simplificada.length();p++){
+
+        char caracter_j = operacion_simplificada.charAt(p);
+
+        if (caracter_j == '+' || caracter_j == '/' || caracter_j == '-' || caracter_j == '*'){
+
+          //Serial.println("Se guardo un digito resta ");
+          p=operacion_simplificada.length();
+
+        } else {
+
+          numero_restar+=caracter_j;
+          i++;
+
+        }
+      }
+      //Serial.println("A " + numero_restar);
+      numero_restar_int = numero_restar.toInt();
+      //Serial.println(numero_restar_int);
+      resultado -= numero_restar_int;
+      //Serial.println(resultado);
+    }
+    if(caracter =='+'){
+      //Serial.println("ENTRO 2");
+      String numero_sumar="";
+      int numero_sumar_int = 0;
+      for (int p = i+1; p<operacion_simplificada.length();p++){
+
+        char caracter_j = operacion_simplificada.charAt(p);
+
+        if (caracter_j == '+' || caracter_j == '/' || caracter_j == '-' || caracter_j == '*'){
+
+          //Serial.println("Se guardo un digito resta ");
+          p=operacion_simplificada.length();
+
+        } else {
+
+          numero_sumar+=caracter_j;
+          i++;
+
+        }
+      }
+      //Serial.println("B " + numero_sumar);
+      numero_sumar_int = numero_sumar.toInt();
+      //Serial.println(numero_sumar_int);
+      resultado += numero_sumar_int;
+      //Serial.println(resultado);
+    }
+    if (i==0 && isdigit(caracter)){
+      //Serial.println("ENTRO 3");
+      String numero_sumar="";
+      int numero_sumar_int = 0;
+      for (int p = i; p<operacion_simplificada.length();p++){
+
+        char caracter_j = operacion_simplificada.charAt(p);
+
+        if (caracter_j == '+' || caracter_j == '/' || caracter_j == '-' || caracter_j == '*'){
+
+          //Serial.println("Se guardo un digito resta ");
+          p=operacion_simplificada.length();
+
+        } else {
+
+          numero_sumar+=caracter_j;
+          
+
+        }
+      }
+      //Serial.println("C " + numero_sumar);      
+      numero_sumar_int = numero_sumar.toInt();
+      //Serial.println(numero_sumar_int); 
+      resultado += numero_sumar_int;
+      //Serial.println(resultado); 
+    
+    }
+  } 
+  return resultado;
+}
+
+ 
+  
 void setup() {
   MATRICES.begin();
   MATRICES.setIntensity(5);
@@ -61,7 +373,7 @@ void loop() {
     if(intentos < 3){
       
       if(estado.equals("ESTADO ARMADO")){
-        //Serial.print(estado);
+       
         if(teclaIngresada=='*'){
           
           Serial.println("---------------------");
@@ -117,18 +429,15 @@ void loop() {
             }
 
           }else{
-            //Serial.print("Tecla Presionada: ");
-            //Serial.println(teclaIngresada);
-            //mensaje = "resultado";
-            //mensaje += teclaIngresada;
+            
             if (pass_display.length() == 4) {
               pass_display.remove(0,1);
             }
             pass_display += "*";
+            Serial.println("--->" + pass_display);
             pass += teclaIngresada;
             MATRICES.print(pass_display);
-            //Serial.println(pass_display);
-            //Serial.println(pass);
+            
           } 
         }
       } else if(estado.equals("ESTADO DESBLOQUEADO")){
@@ -138,6 +447,22 @@ void loop() {
             Serial.println("---------------------");
             Serial.println(" ");
             estado = "ESPERANDO PASSWORD";
+          } else if (isdigit(teclaIngresada) || teclaIngresada == 'B'){
+            Serial.println("---------------------");
+            Serial.println("->ESPERANDO OPERACION-");
+            Serial.println("---------------------");
+            Serial.println();
+            estado = "ESPERANDO OPERACION";
+            if (teclaIngresada=='B'){
+              operacion_str += "-";
+              operacion_display += "-";
+              MATRICES.print(operacion_display);
+            } else{
+              operacion_str += teclaIngresada;
+              operacion_display += teclaIngresada;
+              MATRICES.print(operacion_display);
+            }
+            
           }
       } else if (estado.equals("ESPERANDO PASSWORD")){
         Serial.println("ESTOY ESPERANDO PASSWORD CADA TECLA");
@@ -145,6 +470,7 @@ void loop() {
           Serial.println("---------------------");
           Serial.println("->EVALUANDO PASSWORD-");
           Serial.println("---------------------");
+          Serial.println();
           if (new_pass.length() == 8 || new_pass.length() == 6){
 
             if(new_pass.length()==8){
@@ -330,6 +656,50 @@ void loop() {
           Serial.println(teclaIngresada);
           Serial.println("NEW: " + new_pass);
         }
+      } else if (estado.equals("ESPERANDO OPERACION")){
+        if (teclaIngresada == '*'){
+          operacion_display = "";
+          MATRICES.print(operacion_display);
+        } else{
+          if (teclaIngresada == '#'){
+            int resultadoFinal = calculadora(operacion_str);
+            Serial.print("Resultado ");
+            Serial.println(resultadoFinal);
+            estado = "ESPERANDO OPERACION";
+            operacion_str="";
+            
+          }
+          if (teclaIngresada == 'A'){
+            operacion_str += "+";
+            operacion_display+= "+";
+            MATRICES.print(operacion_display);
+            Serial.println("--> OPERACION: " + operacion_str);
+          }
+          else if (teclaIngresada == 'B'){
+            operacion_str += "-";
+            operacion_display+= "-";
+            MATRICES.print(operacion_display);
+            Serial.println("--> OPERACION: " + operacion_str);
+          }
+          else if (teclaIngresada == 'C'){
+            operacion_str += "*";
+            operacion_display+= "*";
+            MATRICES.print(operacion_display);
+            Serial.println("--> OPERACION: " + operacion_str);
+          }
+          else if (teclaIngresada == 'D'){
+            operacion_str += "/";
+            operacion_display+= "/";
+            MATRICES.print(operacion_display);
+            Serial.println("--> OPERACION: " + operacion_str);
+          } else{
+            operacion_str += teclaIngresada;
+            operacion_display+= teclaIngresada;
+            MATRICES.print(operacion_display);
+            Serial.println("--> OPERACION: " + operacion_str);
+          }
+        }
+          
       }
     } else{
       estado = "MAXIMO DE INTENTOS FALLIDOS";
