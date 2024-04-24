@@ -680,7 +680,7 @@ void loop() {
             //temporizador de operaciones
             unsigned long tiempoActual = millis();
             bool animacion = true;
-            int conteo = 0;
+            long conteo = 0;
 
             // Verifica si ha pasado el tiempo suficiente desde la última operación
             while (animacion) {
@@ -729,8 +729,9 @@ void loop() {
                 MATRICES.displayReset();
               }
               conteo += 1;
-              Serial.print(" ");
-              if (conteo == 10000) {
+              //Serial.print(" ");
+              
+              if (conteo == 95000) {
                 animacion = false;
                 merror = false;
                 Serial.println(" ");
